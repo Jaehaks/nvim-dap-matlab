@@ -20,13 +20,18 @@ end
 M.set_dap = function (dap, opts)
 	-- configure matlab dap when starting debugging session.
 	dap.adapters.matlab = function (cb, config)
-		local client = adapter.get_lsp_client(opts)
-		if not client then
-			vim.notify('[matlab-dap] matlab lsp cannt be detected', vim.log.levels.ERROR)
+		-- try opening tcp server as adapter between dap and lsp
+		local ip, port = adapter.start()
+		if not ip then
 			return
 		end
 
-		vim.print(client.name)
+		-- vim.print(ip .. ':' .. port)
+		cb({
+			type = "server",
+			host = ip,
+			port = port
+		})
 	end
 
 	if not dap.configurations.matlab or #dap.configurations.matlab == 0 then
