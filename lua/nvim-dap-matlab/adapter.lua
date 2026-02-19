@@ -30,7 +30,18 @@ local state = {
 ---@field command string
 ---@field arguments? any
 
+---@class dap.Event: dap.ProtocolMessage
+---@field type "event"
+---@field event string
+---@field body? any
 
+---@class dap.Response: dap.ProtocolMessage
+---@field type "response"
+---@field request_seq number
+---@field success boolean
+---@field command string
+---@field message? "cancelled"|"notStopped"|string
+---@field body? any
 
 
 --------------------------------------------------------------------------------
@@ -184,6 +195,7 @@ M.start = function ()
 		return
 	end
 	state.lsp_client = lsp_client
+	M.register_lsp_handlers(lsp_client) -- register lsp handler to get lsp response from dap request
 
 	state.msg = '' -- initialize received message buffer contents
 
@@ -220,8 +232,74 @@ M.stop = function ()
 end
 
 
+--------------------------------------------------------------------------------
+-- lsp -> dap response receive
+--------------------------------------------------------------------------------
 
+--- encode lsp message to dap form. (Adding header)
+---@param dap_response dap.Response
+local function encode_to_DAPform(dap_response)
+	local body = vim.json.encode(dap_response)
+	return string.format("Content-Length: %d\r\n\r\n%s", #body, body)
 end
 
+--- send lsp response messages to dap
+---@param dap_response dap.Response
+local function send_to_dap(dap_response)
+	if state.socket and not state.socket:is_closing() then
+		local encoded = encode_to_DAPform(dap_response)
+		state.socket:write(encoded)
+	end
+end
+
+-- interface PackagedResponse {
+--     debugResponse: DebugProtocol.Response
+--     tag: unknown
+-- }
+--- Right after nvim-dap send message to lsp, lsp reply.
+--- initialize, launch, next, stepin, scopes etc ...
+local function debug_response_handler(err, result, ctx)
+	-- check result is valid
+	if not result or not result.debugResponse then
+		return
+	end
+	-- check the tag is valid
+	if result.tag ~= state.tag then return end
+
+	vim.schedule(function()
+		send_to_dap(result.debugResponse)
+	end)
+end
+
+--- Some event notification from lsp without dap request
+--- stopped at breakpoint, continued
+local function debug_event_handler(err, result, ctx)
+	if not result or not result.debugEvent then
+		return
+	end
+
+	vim.schedule(function()
+		send_to_dap(result.debugEvent)
+	end)
+end
+
+--- DebuggingStateChange 핸들러: 디버깅 상태 변경 알림
+local function debug_statechange_handler(err, result, ctx)
+	vim.schedule(function()
+		if result then
+			vim.api.nvim_exec_autocmds("User", { pattern = "MatlabDebugStart" })
+		else
+			vim.api.nvim_exec_autocmds("User", { pattern = "MatlabDebugStop" })
+		end
+	end)
+end
+
+--- register LSP notification handler
+---@param lsp_client vim.lsp.Client
+M.register_lsp_handlers = function(lsp_client)
+	lsp_client.handlers["DebugAdaptorResponse"] = debug_response_handler
+	lsp_client.handlers["DebugAdaptorEvent"]    = debug_event_handler
+	lsp_client.handlers["DebuggingStateChange"] = debug_statechange_handler
+end
 
 return M
