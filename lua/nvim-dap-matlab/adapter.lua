@@ -207,6 +207,18 @@ M.start = function ()
 end
 
 M.stop = function ()
+	if state.socket and not state.socket:is_closing() then
+		state.socket:read_stop()
+		state.socket:close()
+	end
+	state.server = nil
+	state.socket = nil
+	state.lsp_client = nil
+	state.msg = ""
+	state.started = false
+end
+
+
 
 end
 
