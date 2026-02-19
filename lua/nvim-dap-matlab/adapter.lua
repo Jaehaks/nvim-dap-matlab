@@ -37,15 +37,16 @@ local state = {
 -- lsp client management
 --------------------------------------------------------------------------------
 
---- Finding the MATLAB LSP Client
+--- get lsp client which is matched with lsp_name
+---@param lsp_name string matlab lsp name
 ---@return vim.lsp.Client? object of lsp client
-M.get_lsp_client = function()
+M.get_lsp_client = function(lsp_name)
 	local buf_clients = vim.lsp.get_clients({bufnr = 0}) -- get all clients which is attached to current buffer
 
 	-- check matlab lsp is existed
 	for _, client in ipairs(buf_clients) do
 		local name = client.name or ""
-		if name == config.lsp_name then
+		if name == lsp_name then
 			return client
 		end
 	end
@@ -177,12 +178,12 @@ M.start = function ()
 	end
 
 	-- check matlab lsp is executed already.
-	local client = M.get_lsp_client()
-	if not client then
+	local lsp_client = M.get_lsp_client(config.lsp_name)
+	if not lsp_client then
 		vim.notify('[matlab-dap] matlab lsp cannot be detected', vim.log.levels.ERROR)
 		return
 	end
-	state.lsp_client = client
+	state.lsp_client = lsp_client
 
 
 	state.server = uv.new_tcp() 		-- create empty tsp server object
