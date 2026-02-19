@@ -185,6 +185,7 @@ M.start = function ()
 	end
 	state.lsp_client = lsp_client
 
+	state.msg = '' -- initialize received message buffer contents
 
 	state.server = uv.new_tcp() 		-- create empty tsp server object
 	state.server:bind('127.0.0.1', 0) 	-- allocate address/port.  0 means arbitrary port to avoid conflict
