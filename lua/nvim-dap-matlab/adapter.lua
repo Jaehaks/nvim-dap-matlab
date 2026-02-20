@@ -19,31 +19,6 @@ local state = {
 	started = false,
 }
 
-
--- from nvim-dap
----@class dap.ProtocolMessage
----@field seq number
----@field type "request"|"response"|"event"|string
-
----@class dap.Request: dap.ProtocolMessage
----@field type "request"
----@field command string
----@field arguments? any
-
----@class dap.Event: dap.ProtocolMessage
----@field type "event"
----@field event string
----@field body? any
-
----@class dap.Response: dap.ProtocolMessage
----@field type "response"
----@field request_seq number
----@field success boolean
----@field command string
----@field message? "cancelled"|"notStopped"|string
----@field body? any
-
-
 --------------------------------------------------------------------------------
 -- lsp client management
 --------------------------------------------------------------------------------
