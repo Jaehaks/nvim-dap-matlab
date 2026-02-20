@@ -241,6 +241,15 @@ local function debug_response_handler(err, result, ctx)
 	-- check the tag is valid
 	if result.tag ~= state.tag then return end
 
+	-- lsp response has not body like 'commandwindow', 'workspace' command in matlab,
+	-- add dummy body to avoid 'resp' error of nvim-dap
+	if result.debugResponse.command == 'evaluate' and result.debugResponse.success and not result.debugResponse.body then
+		result.debugResponse.body = {
+			result = ' ',
+			variablesReference = 0 -- it is regarded the result as single value
+		}
+	end
+
 	vim.schedule(function()
 		send_to_dap(result.debugResponse)
 	end)

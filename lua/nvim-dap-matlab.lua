@@ -37,11 +37,27 @@ M.set_dap = function (dap, opts)
 	if not dap.configurations.matlab or #dap.configurations.matlab == 0 then
 		dap.configurations.matlab = {
 			{
-				type = "matlab",
-				request = "launch",
-				name = "MATLAB Debug",
+				type = "matlab",            -- it needs to same with dap.adapters.[type]
+				request = "launch",         -- 'attach' or 'launch' command
+				name = "MATLAB Debug",      -- description of the session
+				-- optional
+				program = "${file}",        -- file path
+				cwd = "${workspaceFolder}", -- workspace directory
 			},
 		}
+	end
+
+	-- launch matlab file manually using 'evaluate' command in after hook instead of `launch`
+	-- because matlab_ls doesn't  support launch command.
+	dap.listeners.after['launch']['run_matlab'] = function (session, err, _, config, _)
+		if err then
+			vim.notify("[matlab-dap] hooker after launch is failed: " .. tostring(err), vim.log.levels.ERROR)
+			return
+		end
+
+		-- run current file
+		local cmd = string.format("run('%s')", config.program)
+		session:evaluate(cmd)
 	end
 end
 
