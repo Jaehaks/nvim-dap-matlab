@@ -274,7 +274,7 @@ local function debug_event_handler(err, result, ctx)
 	end)
 end
 
---- DebuggingStateChange 핸들러: 디버깅 상태 변경 알림
+--- Debugging state change notification handler
 local function debug_statechange_handler(err, result, ctx)
 	vim.schedule(function()
 		if result then
