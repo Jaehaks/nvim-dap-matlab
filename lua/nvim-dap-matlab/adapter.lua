@@ -195,10 +195,17 @@ M.start = function ()
 end
 
 M.stop = function ()
+	-- close socket listener
 	if state.socket and not state.socket:is_closing() then
 		state.socket:read_stop()
 		state.socket:close()
 	end
+
+	-- close tcp server
+	if state.server and not state.server:is_closing() then
+		state.server:close()
+	end
+
 	state.server = nil
 	state.socket = nil
 	state.lsp_client = nil
