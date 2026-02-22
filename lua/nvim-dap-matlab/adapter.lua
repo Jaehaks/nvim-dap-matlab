@@ -287,6 +287,14 @@ local function debug_event_handler(err, result, ctx)
 		return
 	end
 
+	-- remove warning message from matlab lsp
+	-- because matlab lsp said some warnings when debugging ui doesn't use vscode ui.
+	if result.debugEvent.event == 'output' and result.debugEvent.body and result.debugEvent.body.output then
+		if result.debugEvent.body.output:match("For best results") then
+			return -- it can be returned directly because it it event not response.
+		end
+	end
+
 	vim.schedule(function()
 		send_to_dap(result.debugEvent)
 	end)
