@@ -1,27 +1,9 @@
 local M = {}
 
---- setup function
----@param opts dap_matlab.config
-M.setup = function(opts)
-	local utils = require('nvim-dap-matlab.utils')
-
-	-- set config
-	require("nvim-dap-matlab.config").set_opts(opts)
-
-	-- set nvim-dap config for matlab
-	local ok, dap = pcall(require, "dap")
-	if ok then
-		M.set_dap(dap, opts)
-	end
-
-	-- check lsp connection progress using handler : use FileType if you want to lazy load
-	vim.lsp.handlers["matlab/connection/update/server"] = utils.lsp_connection_check_handler
-end
-
 --- setup nvim-dap config
 ---@param dap table
 ---@param opts dap_matlab.config
-M.set_dap = function (dap, opts)
+local function set_dap(dap, opts)
 	local adapter = require('nvim-dap-matlab.adapter')
 
 	-- configure matlab dap when starting debugging session.
@@ -67,10 +49,20 @@ M.set_dap = function (dap, opts)
 	end
 end
 
+--- setup function
+---@param opts dap_matlab.config
+M.setup = function(opts)
+	local utils = require('nvim-dap-matlab.utils')
 
--- // Proxy pattern
-return setmetatable(M, {
-	__index = function(_, k)
-		return require('nvim-dap-matlab.command')[k]
+	-- set config
+	require("nvim-dap-matlab.config").set_opts(opts)
+
+	-- set nvim-dap config for matlab
+	local ok, dap = pcall(require, "dap")
+	if ok then
+		set_dap(dap, opts)
 	end
-})
+
+	-- check lsp connection progress using handler : use FileType if you want to lazy load
+	vim.lsp.handlers["matlab/connection/update/server"] = utils.lsp_connection_check_handler
+end
