@@ -17,6 +17,7 @@ local state = {
 	tag = 1, -- if we use only one debugging session, use fixed integer
 	msg = '',
 	started = false,
+	lsp_ready = false,
 }
 
 --- get state
@@ -159,6 +160,12 @@ M.start = function ()
 	local lsp_client = require('nvim-dap-matlab.utils').get_lsp_client(config.lsp_name)
 	if not lsp_client then
 		vim.notify('[matlab-dap] matlab lsp cannot be detected', vim.log.levels.ERROR)
+		return
+	end
+
+	-- check matlab lsp loading is completed to avoid lsp crash
+	if not state.lsp_ready then
+		vim.notify('[matlab-dap] matlab lsp loading is not completed. Please wait and retry', vim.log.levels.ERROR)
 		return
 	end
 	state.lsp_client = lsp_client
