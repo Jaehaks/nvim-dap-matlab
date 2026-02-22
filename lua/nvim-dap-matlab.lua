@@ -66,3 +66,5 @@ M.setup = function(opts)
 	-- check lsp connection progress using handler : use FileType if you want to lazy load
 	vim.lsp.handlers["matlab/connection/update/server"] = utils.lsp_connection_check_handler
 end
+
+return M
