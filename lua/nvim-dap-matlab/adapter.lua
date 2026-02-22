@@ -247,13 +247,32 @@ local function debug_response_handler(err, result, ctx)
 	-- check the tag is valid
 	if result.tag ~= state.tag then return end
 
-	-- lsp response has not body like 'commandwindow', 'workspace' command in matlab,
-	-- add dummy body to avoid 'resp' error of nvim-dap
-	if result.debugResponse.command == 'evaluate' and result.debugResponse.success and not result.debugResponse.body then
-		result.debugResponse.body = {
-			result = ' ',
-			variablesReference = 0 -- it is regarded the result as single value
-		}
+	if result.debugResponse.command == 'evaluate' and result.debugResponse.success then
+		-- lsp response has not body like 'commandwindow', 'workspace' command in matlab,
+		-- add dummy body to avoid 'resp' error of nvim-dap
+		if not result.debugResponse.body then
+			result.debugResponse.body = {
+				result = ' ',
+				variablesReference = 0 -- it is regarded the result as single value
+			}
+		else
+			-- make string '\n' of response behave escape feature in REPL view
+			-- because default behavior of nvim-dap doesn't deal with escaped sequence.
+			local escaped_response = {
+				seq = 0,
+				type = 'event',
+				event = 'output',
+				body = {
+					category = 'stdout',
+					output = result.debugResponse.body.result .. '\n'
+				}
+			}
+			send_to_dap(escaped_response)
+
+			-- make original response to empty to comply with nvim-dap rules.
+			result.debugResponse.body.result = ' '
+			result.debugResponse.body.variablesReference = 0
+		end
 	end
 
 	vim.schedule(function()
