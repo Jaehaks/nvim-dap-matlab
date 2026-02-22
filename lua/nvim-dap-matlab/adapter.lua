@@ -19,25 +19,17 @@ local state = {
 	started = false,
 }
 
---------------------------------------------------------------------------------
--- lsp client management
---------------------------------------------------------------------------------
+--- get state
+---@return dap_matlab.state
+M.get_state = function ()
+	return state
+end
 
---- get lsp client which is matched with lsp_name
----@param lsp_name string matlab lsp name
----@return vim.lsp.Client? object of lsp client
-M.get_lsp_client = function(lsp_name)
-	local buf_clients = vim.lsp.get_clients({bufnr = 0}) -- get all clients which is attached to current buffer
-
-	-- check matlab lsp is existed
-	for _, client in ipairs(buf_clients) do
-		local name = client.name or ""
-		if name == lsp_name then
-			return client
-		end
-	end
-
-	return nil
+--- get state
+---@param field string
+---@param value any
+M.set_state = function (field, value)
+	state[field] = value
 end
 
 --------------------------------------------------------------------------------
@@ -164,7 +156,7 @@ M.start = function ()
 	end
 
 	-- check matlab lsp is executed already.
-	local lsp_client = M.get_lsp_client(config.lsp_name)
+	local lsp_client = require('nvim-dap-matlab.utils').get_lsp_client(config.lsp_name)
 	if not lsp_client then
 		vim.notify('[matlab-dap] matlab lsp cannot be detected', vim.log.levels.ERROR)
 		return
