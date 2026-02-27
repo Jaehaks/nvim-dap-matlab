@@ -51,7 +51,7 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 			fidget_handle = fidget_progress.handle.create({
 				title = "[matlab-dap]",
 				message = "loading...",
-				lsp_client = { name = adapter_state.lsp_client.name },
+				lsp_client = { name = lsp_name },
 			})
 		else
 			fidget_handle:report({ message = "connecting..." })
