@@ -10,9 +10,10 @@ local fidget_handle = nil
 
 --- get lsp client which is matched with lsp_name
 ---@param lsp_name string matlab lsp name
+---@param bufnr number buffer number to get lsp client
 ---@return vim.lsp.Client? object of lsp client
-M.get_lsp_client = function(lsp_name)
-	local buf_clients = vim.lsp.get_clients({bufnr = 0}) -- get all clients which is attached to current buffer
+M.get_lsp_client = function(lsp_name, bufnr)
+	local buf_clients = vim.lsp.get_clients({bufnr = bufnr or 0}) -- get all clients which is attached to current buffer
 
 	-- check matlab lsp is existed
 	for _, client in ipairs(buf_clients) do
