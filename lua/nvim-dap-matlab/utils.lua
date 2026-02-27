@@ -37,10 +37,8 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 	local lsp_status = string.lower(result.connectionStatus)
 	local adapter = require('nvim-dap-matlab.adapter')
 	local adapter_state = adapter.get_state()
-	if not adapter_state.lsp_client then
-		adapter_state.lsp_client = M.get_lsp_client(config.lsp_name)
-		adapter.set_state('lsp_client', adapter_state.lsp_client)
-	end
+	adapter_state.lsp_client = vim.lsp.get_client_by_id(ctx.client_id) -- get client from handler event
+	adapter.set_state('lsp_client', adapter_state.lsp_client)
 	local lsp_name = adapter_state.lsp_client.name
 
 	if lsp_status == "connecting" then
