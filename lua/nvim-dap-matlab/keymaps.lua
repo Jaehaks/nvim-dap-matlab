@@ -142,32 +142,31 @@ M.del_keymaps = function(opts)
 	pcall(vim.api.nvim_clear_autocmds, {group = 'matlab-dap-gui-windows'})
 
 	-- restore properties of repl
-	-- 1) restore syntax
-	vim.bo[repl_state.bufnr].syntax = repl_state.syntax
-	if repl_state.lsp_client then
-		pcall(vim.lsp.buf_detach_client, repl_state.bufnr, repl_state.lsp_client.id)
-		repl_state.lsp_client = nil
+	if repl_state.bufnr then
+		-- 1) restore syntax
+		vim.bo[repl_state.bufnr].syntax = repl_state.syntax
+		if repl_state.lsp_client then
+			pcall(vim.lsp.buf_detach_client, repl_state.bufnr, repl_state.lsp_client.id)
+			repl_state.lsp_client = nil
+		end
+
+		-- 2) restore diagnostic
+		vim.diagnostic.enable(true, {bufnr = repl_state.bufnr})
+
+		-- 3) restore keymaps
+		local rm = opts.repl.keymaps
+		if rm.previous_command_history then
+			pcall(vim.keymap.del, 'n', rm.previous_command_history, {buffer = repl_state.bufnr})
+		end
+		if rm.next_command_history then
+			pcall(vim.keymap.del, 'n', rm.next_command_history, {buffer = repl_state.bufnr})
+		end
+
+		-- 4) restore autocmds
+		pcall(vim.api.nvim_clear_autocmds, {group = repl_state.augroup})
+		repl_state.bufnr = nil
+		repl_state.augroup = nil
 	end
-
-	-- 2) restore diagnostic
-	vim.diagnostic.enable(true, {bufnr = repl_state.bufnr})
-
-	-- 3) restore keymaps
-	local rm = opts.repl.keymaps
-	if rm.previous_command_history then
-		pcall(vim.keymap.del, 'n', rm.previous_command_history, {buffer = repl_state.bufnr})
-	end
-	if rm.next_command_history then
-		pcall(vim.keymap.del, 'n', rm.next_command_history, {buffer = repl_state.bufnr})
-	end
-
-	-- 4) restore autocmds
-	pcall(vim.api.nvim_clear_autocmds, {group = repl_state.augroup})
-	repl_state.bufnr = nil
-	repl_state.augroup = nil
-
-
-
 end
 
 return M
