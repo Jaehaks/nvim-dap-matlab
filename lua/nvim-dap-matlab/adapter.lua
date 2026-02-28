@@ -1,5 +1,6 @@
 local M = {}
 local config = require("nvim-dap-matlab.config").get_opts()
+local utils = require('nvim-dap-matlab.utils')
 
 local uv = vim.uv or vim.loop
 
@@ -269,6 +270,31 @@ local function debug_response_handler(err, result, ctx)
 				}
 			}
 			send_to_dap(escaped_response)
+
+			-- If the message has error, go to the error line of error file.
+			if contents:find('오류 발생') or contents:find('Error in')then
+				local filename, linestr = contents:match("오류 발생: (%S+) %((%d+)번 라인%)")
+				if not filename then
+					filename, linestr = contents:match("Error in (%S+)%s*%(line (%d+)%)")
+				end
+
+				if filename then
+					local line = tonumber(linestr)
+					local file = filename .. '.m'
+
+					local filepath = vim.fn.findfile(file, '**') -- find subdirectories from root dir
+					if filepath == '' then
+						vim.notify('[matlab-dap] Cannot find file ' .. file .. 'in root directory', vim.log.levels.WARN)
+					else
+						if vim.fn.fnamemodify(filepath, ':p') ~= vim.fn.expand('%:p') then -- open if error file is not current buffer
+							vim.cmd('edit ' .. vim.fn.fnameescape(filepath))
+						end
+						vim.api.nvim_win_set_cursor(0, {line, 0})
+						vim.cmd('normal! zz')
+					end
+				end
+				utils.error_fidget() -- exit/terminate don't occur when error exists.
+			end
 
 			-- make original response to empty to comply with nvim-dap rules.
 			result.debugResponse.body.result = ' '

@@ -107,8 +107,17 @@ M.start_fidget = function(msg)
 end
 
 --- stop fidget progress
-M.stop_fidget = function()
+M.finish_fidget = function()
     if fidget_dap_progress then
+        fidget_dap_progress:finish()
+        fidget_dap_progress = nil
+    end
+end
+
+--- stop fidget progress
+M.error_fidget = function()
+    if fidget_dap_progress then
+        fidget_dap_progress.message = '❌ Error'
         fidget_dap_progress:finish()
         fidget_dap_progress = nil
     end
