@@ -64,10 +64,34 @@ M.set_keymaps = function(dap, opts)
 		end
 	end
 
-	-- set keymaps for all opened matlab buffer
-	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-		if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].filetype == 'matlab' then
-			_set_keymaps(bufnr)
+	--- apply lsp feature / syntax / keymap for repl
+	---@param bufnr number repl buffer number
+	local function _set_syntax_to_repl(bufnr)
+		local session = dap.session()
+		local adapter_state = require('nvim-dap-matlab.adapter').get_state()
+
+		-- only during matlab debug session
+		if session and session.config.type == 'matlab' then
+			repl_state.syntax = vim.bo[bufnr].syntax -- save default syntax
+
+			-- attach matlab lsp to repl to use completion
+			vim.lsp.buf_attach_client(bufnr, adapter_state.lsp_client.id)
+			vim.bo[bufnr].syntax = 'matlab'
+			vim.diagnostic.enable(false, {bufnr = bufnr}) -- disable diagnostics
+
+			repl_state.bufnr = bufnr
+			repl_state.lsp_client = adapter_state.lsp_client
+			repl_state.augroup = 'matlab-dap-repl'
+
+			-- keymaps for repl
+			if opts.repl.keymaps.previous_command_history then
+				vim.keymap.set('i', opts.repl.keymaps.previous_command_history, '<Up>',
+				{ desc = '[matlab-dap] previous commnad history in repl', buffer = bufnr, remap = true})
+			end
+			if opts.repl.keymaps.next_command_history then
+				vim.keymap.set('i', opts.repl.keymaps.next_command_history, '<Down>',
+				{ desc = '[matlab-dap] next commnad history in repl', buffer = bufnr, remap = true})
+			end
 		end
 	end
 
@@ -87,34 +111,20 @@ M.set_keymaps = function(dap, opts)
 		group = 'matlab-dap-repl',
 		pattern = opts.repl.filetype,
 		callback = function (args)
-			local session = dap.session()
-			local adapter_state = require('nvim-dap-matlab.adapter').get_state()
-
-			-- only during matlab debug session
-			if session and session.config.type == 'matlab' then
-				repl_state.syntax = vim.bo[args.buf].syntax -- save default syntax
-
-				-- attach matlab lsp to repl to use completion
-				vim.lsp.buf_attach_client(args.buf, adapter_state.lsp_client.id)
-				vim.bo[args.buf].syntax = 'matlab'
-				vim.diagnostic.enable(false, {bufnr = args.buf}) -- disable diagnostics
-
-				repl_state.bufnr = args.buf
-				repl_state.lsp_client = adapter_state.lsp_client
-				repl_state.augroup = 'matlab-dap-repl'
-
-				-- keymaps for repl
-				if opts.repl.keymaps.previous_command_history then
-					vim.keymap.set('i', opts.repl.keymaps.previous_command_history, '<Up>',
-					{ desc = '[matlab-dap] previous commnad history in repl', buffer = args.buf, remap = true})
-				end
-				if opts.repl.keymaps.next_command_history then
-					vim.keymap.set('i', opts.repl.keymaps.next_command_history, '<Down>',
-					{ desc = '[matlab-dap] next commnad history in repl', buffer = args.buf, remap = true})
-				end
-			end
+			_set_syntax_to_repl(args.buf)
 		end
 	})
+
+	-- set keymaps for all opened buffer
+	for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_is_valid(bufnr) then
+			if vim.bo[bufnr].filetype == 'matlab' then -- for matlab buffer
+				_set_keymaps(bufnr)
+			elseif vim.tbl_contains(opts.repl.filetype, vim.bo[bufnr].filetype) then -- for repl
+				_set_syntax_to_repl(bufnr)
+			end
+		end
+	end
 end
 
 --- delete keymaps for matlab debugging
