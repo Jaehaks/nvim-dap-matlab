@@ -78,7 +78,7 @@ vim.lsp.config('matlab-ls', {
 })
 ```
 
-> [!TIP] Tip:
+> [!TIP]
 > Recommend to set `pwd` to project folder.
 
 ### 2) nvim-dap
@@ -86,7 +86,7 @@ vim.lsp.config('matlab-ls', {
 
 Below code is an example.
 
-> [!TIP] Tip:
+> [!TIP]
 > When You set conditional breakpoint, you need to input some condition without `if` word
 
 
