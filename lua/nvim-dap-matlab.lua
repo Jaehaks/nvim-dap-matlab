@@ -43,9 +43,20 @@ local function set_dap(dap, opts)
 			return
 		end
 
+		-- Show start message
+		local filename = vim.fn.fnamemodify(config.program, ':t')
+		vim.notify("[matlab-dap] Run " .. filename)
+
 		-- run current file
 		local cmd = string.format("run('%s')", config.program)
 		session:evaluate(cmd)
+	end
+
+	dap.listeners.after['event_terminated']["terminate_matlab"] = function ()
+		vim.notify("[matlab-dap] Debug session is terminated")
+	end
+	dap.listeners.after['event_exited']["exit_matlab"] = function ()
+		vim.notify("[matlab-dap] matlab script is exited")
 	end
 end
 
