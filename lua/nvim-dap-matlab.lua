@@ -54,12 +54,12 @@ local function set_dap(dap, opts)
 		session:evaluate(cmd)
 
 		-- open workspace window at start
-		if opts.auto_open.workspace then
+		if opts.gui_windows.auto_open.workspace then
 			session:evaluate("workspace")
 		end
 
 		-- open file browser window at start
-		if opts.auto_open.filebrowser then
+		if opts.gui_windows.auto_open.filebrowser then
 			session:evaluate("filebrowser")
 		end
 

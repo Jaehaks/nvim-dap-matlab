@@ -74,7 +74,7 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 
 		-- autocmd for repl
 		vim.api.nvim_create_autocmd('FileType', {
-			pattern = config.filetype_repl,
+			pattern = config.repl.filetype,
 			callback = function (args)
 				-- attach matlab lsp to repl to use completion
 				vim.lsp.buf_attach_client(args.buf, adapter_state.lsp_client.id)
@@ -82,11 +82,11 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 				vim.diagnostic.enable(false, {bufnr = args.buf}) -- disable diagnostics
 
 				-- keymaps for repl
-				if config.keymaps.previous_command_in_repl then
-					vim.keymap.set('i', config.keymaps.previous_command_in_repl, '<Up>', { buffer = args.buf, remap = true})
+				if config.repl.keymaps.previous_command_in_repl then
+					vim.keymap.set('i', config.repl.keymaps.previous_command_in_repl, '<Up>', { buffer = args.buf, remap = true})
 				end
-				if config.keymaps.next_command_in_repl then
-					vim.keymap.set('i', config.keymaps.next_command_in_repl, '<Down>', { buffer = args.buf, remap = true})
+				if config.repl.keymaps.next_command_in_repl then
+					vim.keymap.set('i', config.repl.keymaps.next_command_in_repl, '<Down>', { buffer = args.buf, remap = true})
 				end
 			end
 		})

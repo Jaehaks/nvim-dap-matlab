@@ -116,18 +116,24 @@ Below code is an example.
 
 ```lua
 require("nvim-dap-matlab").setup({
-  lsp_name = 'matlab-ls',                   -- lsp name which you set using vim.lsp
-  auto_open = {                             -- these windows are opened automatically when debug starts.
-    workspace = false,
-    filebrowser = false,
+  lsp_name = 'matlab-ls',                 -- lsp name which you set using vim.lsp
+  gui_windows = {
+    auto_open = {                         -- these windows are opened automatically when debug starts.
+      workspace = false,
+      filebrowser = false,
+    },
+    keymaps = {
+      toggle_workspace = '<leader>dw',    -- toggle workspace window to see variable list in GUI
+      toggle_filebrowser = '<leader>df',  -- toggle file browser window to see variable list in GUI
+    },
   },
-  keymaps = {                               -- native keymaps
-    toggle_workspace = '<leader>dw',        -- toggle workspace window to see variable list in GUI
-    toggle_filebrowser = '<leader>df',      -- toggle file browser window to see file list
-    previous_command_in_repl = '<C-k>',     -- insert previous command history to repl
-    next_command_in_repl = '<C-j>',         -- insert next command history to repl
-  },
-  filetype_repl = {'dap-repl', 'dap-view'}, -- set filetypes to apply lsp autocompletion and syntax
+  repl = {
+    filetype = {'dap-repl', 'dap-view'},  -- set filetypes to apply lsp autocompletion and syntax
+    keymaps = {
+      previous_command_in_repl = '<C-k>', -- insert previous command history to repl
+      next_command_in_repl = '<C-j>',     -- insert next command history to repl
+    },
+  }
 })
 ```
 

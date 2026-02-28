@@ -1,35 +1,52 @@
 local M = {}
 
----@class dap_matlab.config.auto_open
----@field workspace boolean
----@field filebrowser boolean
----
----@class dap_matlab.config.keymaps
----@field toggle_workspace string
----@field toggle_filebrowser string
----@field previous_command_in_repl string
----@field next_command_in_repl string
+-- gui windows
+---@class dap_matlab.config.gui_windows
+---@field auto_open dap_matlab.config.gui_windows.auto_open
+---@field keymaps dap_matlab.config.gui_windows.keymaps
+
+---@class dap_matlab.config.gui_windows.auto_open
+---@field workspace boolean open workspace window automatically
+---@field filebrowser boolean open file browser window automatically
+
+---@class dap_matlab.config.gui_windows.keymaps
+---@field toggle_workspace string keymap to toggle workspace gui window
+---@field toggle_filebrowser string keymap to toggle file browser gui window
+
+-- repl
+---@class dap_matlab.config.repl
+---@field filetype string[]
+---@field keymaps dap_matlab.config.repl.keymaps
+
+---@class dap_matlab.config.repl.keymaps
+---@field previous_command_in_repl string keymap to insert previous command history
+---@field next_command_in_repl string keymap to insert next command history
 
 
 -- default configuration
 ---@class dap_matlab.config
 ---@field lsp_name string matlab lsp name which user configured
----@field auto_open dap_matlab.config.auto_open window open automatically
----@field keymaps dap_matlab.config.keymaps
----@field filetype_repl string[]
+---@field gui_windows dap_matlab.config.gui_windows
+---@field repl dap_matlab.config.repl
 local default_config = {
 	lsp_name = 'matlab-ls',
-	auto_open = {
-		workspace = false,
-		filebrowser = false,
+	gui_windows = {
+		auto_open = {
+			workspace = false,
+			filebrowser = false,
+		},
+		keymaps = {
+			toggle_workspace = '<leader>dw',
+			toggle_filebrowser = '<leader>df',
+		},
 	},
-	keymaps = {
-		toggle_workspace = '<leader>dw',
-		toggle_filebrowser = '<leader>df',
-		previous_command_in_repl = '<C-k>',
-		next_command_in_repl = '<C-j>',
-	},
-	filetype_repl = {'dap-repl', 'dap-view'},
+	repl = {
+		filetype = {'dap-repl', 'dap-view'},
+		keymaps = {
+			previous_command_in_repl = '<C-k>',
+			next_command_in_repl = '<C-j>',
+		},
+	}
 }
 
 local config = vim.deepcopy(default_config)
