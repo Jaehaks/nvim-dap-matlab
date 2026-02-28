@@ -45,44 +45,44 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 	if lsp_status == "connecting" then
 		if not fidget_ok then
 			vim.notify("[matlab-dap] " .. lsp_name .. " is connecting...", vim.log.levels.WARN)
-			return
+		else
+			if not fidget_handle then
+				fidget_handle = fidget_progress.handle.create({
+					title = "[matlab-dap]",
+					message = "loading...",
+					lsp_client = { name = lsp_name },
+				})
+			else
+				fidget_handle:report({ message = "connecting..." })
+			end
 		end
 
-		if not fidget_handle then
-			fidget_handle = fidget_progress.handle.create({
-				title = "[matlab-dap]",
-				message = "loading...",
-				lsp_client = { name = lsp_name },
-			})
-		else
-			fidget_handle:report({ message = "connecting..." })
-		end
 		adapter.set_state('lsp_ready', false)
 
 	elseif lsp_status == "connected" then
 		if not fidget_ok then
 			vim.notify("[matlab-dap] " .. lsp_name .. " is connected!", vim.log.levels.INFO)
-			return
+		else
+			if fidget_handle then
+				fidget_handle:report({ message = "connected!" })
+				fidget_handle:finish()
+				fidget_handle = nil
+			end
 		end
 
-		if fidget_handle then
-			fidget_handle:report({ message = "connected!" })
-			fidget_handle:finish()
-			fidget_handle = nil
-		end
 		adapter.set_state('lsp_ready', true)
 
 	elseif lsp_status == "disconnected" then
 		if not fidget_ok then
 			vim.notify("[matlab-dap] " .. lsp_name .. " is disconnected!", vim.log.levels.ERROR)
-			return
+		else
+			if fidget_handle then
+				fidget_handle:report({ message = "disconnected" })
+				fidget_handle:cancel()
+				fidget_handle = nil
+			end
 		end
 
-		if fidget_handle then
-			fidget_handle:report({ message = "disconnected" })
-			fidget_handle:cancel()
-			fidget_handle = nil
-		end
 		adapter.set_state('lsp_ready', false)
 	end
 end
