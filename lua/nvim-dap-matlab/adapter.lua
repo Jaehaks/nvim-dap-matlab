@@ -258,13 +258,14 @@ local function debug_response_handler(err, result, ctx)
 		else
 			-- make string '\n' of response behave escape feature in REPL view
 			-- because default behavior of nvim-dap doesn't deal with escaped sequence.
+			local contents = result.debugResponse.body.result
 			local escaped_response = {
 				seq = 0,
 				type = 'event',
 				event = 'output',
 				body = {
 					category = 'stdout',
-					output = result.debugResponse.body.result .. '\n'
+					output = contents .. '\n'
 				}
 			}
 			send_to_dap(escaped_response)
