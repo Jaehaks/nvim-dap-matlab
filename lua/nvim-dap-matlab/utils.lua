@@ -144,4 +144,58 @@ M.error_fidget = function()
     end
 end
 
+--------------------------------------------------------------------------------
+-- sign definition
+--------------------------------------------------------------------------------
+local sign_names = {
+    "DapBreakpoint",
+    "DapBreakpointCondition",
+    "DapBreakpointRejected",
+    "DapLogPoint",
+    "DapStopped"
+}
+
+-- default sign backup
+local default_signs = {}
+for _, name in ipairs(sign_names) do
+	local defined = vim.fn.sign_getdefined(name)[1]
+
+	if defined then
+		default_signs[name] = defined
+	else
+		default_signs[name] = { text = "", texthl = "", linehl = "", numhl = "" }
+	end
+end
+
+-- define nvim-dap-matlab sign
+vim.api.nvim_set_hl(0, 'DapStoppedLine', {bg = '#4a3f00'})
+local matlab_signs = {
+	DapBreakpoint          = { text = '●', texthl = 'DiagnosticError',   linehl = '', numhl = '' },
+	DapBreakpointCondition = { text = '●', texthl = 'DiagnosticWarn',    linehl = '', numhl = '' },
+	DapBreakpointRejected  = { text = '', texthl = 'DiagnosticHint',    linehl = '', numhl = '' },
+	DapLogPoint            = { text = '', texthl = 'DiagnosticInfo',    linehl = '', numhl = '' },
+	DapStopped             = { text = '▶', texthl = 'DiagnosticOk',      linehl = 'DapStoppedLine', numhl = '' },
+}
+
+local function set_debug_signs(signs)
+    for name, opts in pairs(signs) do
+        vim.fn.sign_define(name, opts)
+    end
+end
+
+-- 3. 버퍼 이동 시 FileType을 감지하여 덮어씌우거나 복구합니다.
+vim.api.nvim_create_augroup('matlab-dap-sign', { clear = true })
+vim.api.nvim_create_autocmd('BufEnter', {
+    group = 'matlab-dap-sign',
+    callback = function(args)
+        if not vim.api.nvim_buf_is_valid(args.buf) then return end
+
+        if vim.bo[args.buf].filetype == 'matlab' then
+            set_debug_signs(matlab_signs)
+        else
+            set_debug_signs(default_signs)
+        end
+    end
+})
+
 return M
