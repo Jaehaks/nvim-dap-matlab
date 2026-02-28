@@ -77,11 +77,12 @@ M.del_keymaps = function(opts)
 	-- delete keymaps as low level function
 	---@param bufnr number
 	local function _del_keymaps(bufnr)
-		if opts.gui_windows.keymaps.toggle_workspace then
-			pcall(vim.keymap.del, 'n', opts.gui_windows.keymaps.toggle_workspace, {buffer = bufnr})
+		local gm = opts.gui_windows.keymaps
+		if gm.toggle_workspace then
+			pcall(vim.keymap.del, 'n', gm.toggle_workspace, {buffer = bufnr})
 		end
-		if opts.gui_windows.keymaps.toggle_filebrowser then
-			pcall(vim.keymap.del, 'n', opts.gui_windows.keymaps.toggle_filebrowser, {buffer = bufnr})
+		if gm.toggle_filebrowser then
+			pcall(vim.keymap.del, 'n', gm.toggle_filebrowser, {buffer = bufnr})
 		end
 	end
 
