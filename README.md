@@ -1,5 +1,9 @@
 # nvim-dap-matlab
 
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/09ef298f-7d1c-497e-ab5f-46bba49040a4" width="70%"></video>
+</p>
+
 ## What for?
 
 A **DAP (Debug Adapter Protocol) adapter** between [nvim-dap](https://github.com/mfussenegger/nvim-dap) and the [MATLAB Language Server](https://github.com/mathworks/MATLAB-language-server) for debugging MATLAB code directly in Neovim.
