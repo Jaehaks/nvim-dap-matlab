@@ -21,6 +21,11 @@ local state = {
 	lsp_ready = false,
 }
 
+--- <request_seq, context> to find matched dap context from lsp response
+---@type table<integer, string>
+local context_pair = {
+}
+
 --- get state
 ---@return dap_matlab.state
 M.get_state = function ()
@@ -86,6 +91,11 @@ local function send_to_lsp(dap_message)
 		debugRequest = dap_message,
 		tag = state.tag,
 	}
+
+	-- set context pair array to compare when lsp response is received
+	if dap_message.command == 'evaluate' and dap_message.arguments and dap_message.arguments.context then
+		context_pair[dap_message.seq] = dap_message.arguments.context
+	end
 
 	-- use notify() instead of request() if you don't need to receive callback message
 	-- lsp doesn't reply immediately, it will send to dap using "DebugAdaptorEvent" event
@@ -248,6 +258,10 @@ local function debug_response_handler(err, result, ctx)
 	-- check the tag is valid
 	if result.tag ~= state.tag then return end
 
+	-- get matched dap context from request_seq
+	local context = context_pair[result.debugResponse.request_seq]
+	context_pair[result.debugResponse.request_seq] = nil
+
 	if result.debugResponse.command == 'evaluate' and result.debugResponse.success then
 		-- lsp response has not body like 'commandwindow', 'workspace' command in matlab,
 		-- add dummy body to avoid 'resp' error of nvim-dap
@@ -257,57 +271,61 @@ local function debug_response_handler(err, result, ctx)
 				variablesReference = 0 -- it is regarded the result as single value
 			}
 		else
-			-- make string '\n' of response behave escape feature in REPL view
-			-- because default behavior of nvim-dap doesn't deal with escaped sequence.
-			local contents = result.debugResponse.body.result
-			local escaped_response = {
-				seq = 0,
-				type = 'event',
-				event = 'output',
-				body = {
-					category = 'stdout',
-					output = contents .. '\n'
+			if context == 'repl' then
+				-- make string '\n' of response behave escape feature in REPL view
+				-- because default behavior of nvim-dap doesn't deal with escaped sequence.
+				local contents = result.debugResponse.body.result
+				local escaped_response = {
+					seq = 0,
+					type = 'event',
+					event = 'output',
+					body = {
+						category = 'stdout',
+						output = contents .. '\n'
+					}
 				}
-			}
-			send_to_dap(escaped_response)
+				send_to_dap(escaped_response)
 
-			-- If the message has error, go to the error line of error file.
-			if contents:find('오류 발생') or contents:find('Error in')then
-				local filename, linestr = contents:match("오류 발생: (%S+) %((%d+)번 라인%)")
-				if not filename then
-					filename, linestr = contents:match("Error in (%S+)%s*%(line (%d+)%)")
-				end
+				-- If the message has error, go to the error line of error file.
+				if contents:find('오류 발생') or contents:find('Error in')then
+					local filename, linestr = contents:match("오류 발생: (%S+) %((%d+)번 라인%)")
+					if not filename then
+						filename, linestr = contents:match("Error in (%S+)%s*%(line (%d+)%)")
+					end
 
-				if filename then
-					local line = tonumber(linestr)
-					local file = filename .. '.m'
+					if filename then
+						local line = tonumber(linestr)
+						local file = filename .. '.m'
 
-					local filepath = vim.fn.findfile(file, '**') -- find subdirectories from root dir
-					if filepath == '' then
-						vim.notify('[matlab-dap] Cannot find file ' .. file .. 'in root directory', vim.log.levels.WARN)
-					else
-						if vim.fn.fnamemodify(filepath, ':p') ~= vim.fn.expand('%:p') then -- open if error file is not current buffer
-							vim.cmd('edit ' .. vim.fn.fnameescape(filepath))
+						local filepath = vim.fn.findfile(file, '**') -- find subdirectories from root dir
+						if filepath == '' then
+							vim.notify('[matlab-dap] Cannot find file ' .. file .. 'in root directory', vim.log.levels.WARN)
+						else
+							if vim.fn.fnamemodify(filepath, ':p') ~= vim.fn.expand('%:p') then -- open if error file is not current buffer
+								vim.cmd('edit ' .. vim.fn.fnameescape(filepath))
+							end
+							vim.api.nvim_win_set_cursor(0, {line, 0})
+							vim.cmd('normal! zz')
 						end
-						vim.api.nvim_win_set_cursor(0, {line, 0})
-						vim.cmd('normal! zz')
 					end
+					utils.error_fidget() -- exit/terminate don't occur when error exists.
+
+					-- show error in repl If debug session is terminated right after error
+					-- [Situation] : error occurs after step over() during debug session
+					vim.defer_fn(function ()
+						local session = require('dap').session()
+						if not session then
+							require('dap.repl').append(contents)
+						end
+					end, 100)
 				end
-				utils.error_fidget() -- exit/terminate don't occur when error exists.
 
-				-- show error in repl If debug session is terminated right after error
-				-- [Situation] : error occurs after step over() during debug session
-				vim.defer_fn(function ()
-					local session = require('dap').session()
-					if not session then
-						require('dap.repl').append(contents)
-					end
-				end, 100)
+				-- make original response to empty to comply with nvim-dap rules.
+				-- prevent to show the original response to repl window.
+				result.debugResponse.body.result = ' '
+				result.debugResponse.body.variablesReference = 0
 			end
-
-			-- make original response to empty to comply with nvim-dap rules.
-			result.debugResponse.body.result = ' '
-			result.debugResponse.body.variablesReference = 0
+			-- if context is watch/hover, don't modify the output
 		end
 	end
 
