@@ -1,9 +1,17 @@
 # nvim-dap-matlab
 
+## Main Demo
 <div align="center">
   <video src="https://github.com/user-attachments/assets/09ef298f-7d1c-497e-ab5f-46bba49040a4" style="width: 30%;" controls>
   </video>
 </div>
+
+## Use REPL, Watch / Detect error line
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/a2cd62b0-ee3c-4392-a239-697ac04ef8f4" width="30%" controls>
+  </video>
+</div>
+
 
 ## What for?
 
