@@ -98,6 +98,8 @@ M.setup = function(opts)
 	local ok, dap = pcall(require, "dap")
 	if ok then
 		set_dap(dap, cf.get_opts())
+	else
+		vim.notify("[matlab-dap] nvim-dap.nvim doesn't be installed.", vim.log.levels.WARN)
 	end
 
 	-- check lsp connection progress using handler : use FileType if you want to lazy load
