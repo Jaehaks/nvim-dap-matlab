@@ -25,6 +25,7 @@ standard DAP protocol and the MATLAB LSP's custom notification-based debug inter
 - To prevent crash, it blocks executing debug session while matlab lsp is loading
 - Optional [fidget.nvim](https://github.com/j-hui/fidget.nvim) integration for LSP connection progress display
 - Supports some keymaps to manage file browser / workspace window.
+- Use nvim-dap's repl to interact with matlab with lsp completion and syntax
 
 ---
 
@@ -115,15 +116,18 @@ Below code is an example.
 
 ```lua
 require("nvim-dap-matlab").setup({
-  lsp_name = 'matlab-ls',              -- lsp name which you set using vim.lsp
-  auto_open = {                        -- these windows are opened automatically when debug starts.
+  lsp_name = 'matlab-ls',                   -- lsp name which you set using vim.lsp
+  auto_open = {                             -- these windows are opened automatically when debug starts.
     workspace = false,
     filebrowser = false,
   },
-  keymaps = {                          -- native keymaps
-    toggle_workspace = '<leader>dw',   -- toggle workspace window to see variable list in GUI
-    toggle_filebrowser = '<leader>df', -- toggle file browser window to see file list
-  }
+  keymaps = {                               -- native keymaps
+    toggle_workspace = '<leader>dw',        -- toggle workspace window to see variable list in GUI
+    toggle_filebrowser = '<leader>df',      -- toggle file browser window to see file list
+    previous_command_in_repl = '<C-k>',     -- insert previous command history to repl
+    next_command_in_repl = '<C-j>',         -- insert next command history to repl
+  },
+  filetype_repl = {'dap-repl', 'dap-view'}, -- set filetypes to apply lsp autocompletion and syntax
 })
 ```
 
