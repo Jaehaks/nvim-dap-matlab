@@ -72,12 +72,21 @@ standard DAP protocol and the MATLAB LSP's custom notification-based debug inter
 
 The MATLAB Language Server must be running before you can start a debug session.
 
+> [!CAUTION]
+> This plugin supports only one project per neovim yet.
+> So you should setup like below code to avoid attaching additional lsp due to matlab library.
+
 ```lua
 vim.lsp.config('matlab-ls', {
   root_dir = function (bufnr, cb)
-    local root = vim.fs.root(bufnr, {'.git'}) or vim.fn.expand('%:p:h')
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+    if string.match(bufname, 'toolbox[\\/]matlab') then -- avoid attaching to installed matlab library
+      return
+    end
+    local root = vim.fs.root(bufnr, { '.git' }) or vim.fn.expand('%:p:h')
     cb(root)
   end,
+
   cmd = {'matlab-language-server', '--stdio'},
   filetypes = {'matlab'},
   settings = {
@@ -175,6 +184,7 @@ vim.keymap.set('n', '<F11>', dap.step_into, {desc = '[nvim-dap] Debug Step Into'
 vim.keymap.set('n', '<F12>', dap.step_out, {desc = '[nvim-dap] Debug Step Out'})
 vim.keymap.set('n', '<leader>dp', dap.pause, {desc = '[nvim-dap] Debug Pause'})
 vim.keymap.set('n', '<leader>ds', dap.terminate, {desc = '[nvim-dap] Terminate Session'})
+vim.keymap.set('n', '<leader>du', dap.clear_breakpoints, {desc = '[nvim-dap] Clear all Breakpoints'})
 vim.keymap.set('n', '<leader>db', dap.toggle_breakpoint, {desc = '[nvim-dap] Set Breakpoint '})
 vim.keymap.set('n', '<leader>dB', function ()
   local condition = vim.fn.input('condition : ') -- insert condition without 'if' word.
