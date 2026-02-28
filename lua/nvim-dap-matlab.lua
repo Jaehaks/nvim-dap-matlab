@@ -5,6 +5,7 @@ local M = {}
 ---@param opts dap_matlab.config
 local function set_dap(dap, opts)
 	local adapter = require('nvim-dap-matlab.adapter')
+	local keymaps = require('nvim-dap-matlab.keymaps')
 
 	-- configure matlab dap when starting debugging session.
 	dap.adapters.matlab = function (cb, config)
@@ -50,13 +51,28 @@ local function set_dap(dap, opts)
 		-- run current file
 		local cmd = string.format("run('%s')", config.program)
 		session:evaluate(cmd)
+
+		-- open workspace window at start
+		if opts.auto_open.workspace then
+			session:evaluate("workspace")
+		end
+
+		-- open file browser window at start
+		if opts.auto_open.filebrowser then
+			session:evaluate("filebrowser")
+		end
+
+		-- set keymaps for matlab debugging
+		keymaps.set_keymaps(dap, opts)
 	end
 
 	dap.listeners.after['event_terminated']["terminate_matlab"] = function ()
 		vim.notify("[matlab-dap] Debug session is terminated")
+		keymaps.del_keymaps(opts)
 	end
 	dap.listeners.after['event_exited']["exit_matlab"] = function ()
 		vim.notify("[matlab-dap] matlab script is exited")
+		keymaps.del_keymaps(opts)
 	end
 end
 
@@ -66,12 +82,13 @@ M.setup = function(opts)
 	local utils = require('nvim-dap-matlab.utils')
 
 	-- set config
-	require("nvim-dap-matlab.config").set_opts(opts)
+	local cf = require("nvim-dap-matlab.config")
+	cf.set_opts(opts)
 
 	-- set nvim-dap config for matlab
 	local ok, dap = pcall(require, "dap")
 	if ok then
-		set_dap(dap, opts)
+		set_dap(dap, cf.get_opts())
 	end
 
 	-- check lsp connection progress using handler : use FileType if you want to lazy load
