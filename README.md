@@ -1,8 +1,9 @@
 # nvim-dap-matlab
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/09ef298f-7d1c-497e-ab5f-46bba49040a4" width="400px"></video>
-</p>
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/09ef298f-7d1c-497e-ab5f-46bba49040a4" style="width: 30%;" controls>
+  </video>
+</div>
 
 ## What for?
 
