@@ -3,6 +3,7 @@ local M = {}
 local config = require("nvim-dap-matlab.config").get_opts()
 local fidget_ok, fidget_progress = pcall(require, 'fidget.progress')
 local fidget_handle = nil
+local fidget_dap_progress = nil
 
 --------------------------------------------------------------------------------
 -- lsp client management
@@ -86,5 +87,31 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 	end
 end
 
+--------------------------------------------------------------------------------
+-- other progress bar
+--------------------------------------------------------------------------------
+
+--- start fidget progress
+---@param msg string message to show while fidget spinning
+M.start_fidget = function(msg)
+    if fidget_dap_progress then return end
+
+	local adapter_state = require('nvim-dap-matlab.adapter').get_state()
+    if fidget_ok then
+        fidget_dap_progress = fidget_progress.handle.create({
+            title = "[matlab-dap]",
+            message = msg,
+            lsp_client = { name = adapter_state.lsp_client.name},
+        })
+    end
+end
+
+--- stop fidget progress
+M.stop_fidget = function()
+    if fidget_dap_progress then
+        fidget_dap_progress:finish()
+        fidget_dap_progress = nil
+    end
+end
 
 return M
