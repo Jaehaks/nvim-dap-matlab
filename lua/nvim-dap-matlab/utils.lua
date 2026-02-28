@@ -72,27 +72,6 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 		end
 		adapter.set_state('lsp_ready', true)
 
-		-- autocmd for repl
-		vim.api.nvim_create_augroup('matlab-dap-repl', {clear = true})
-		vim.api.nvim_create_autocmd('FileType', {
-			group = 'matlab-dap-repl',
-			pattern = config.repl.filetype,
-			callback = function (args)
-				-- attach matlab lsp to repl to use completion
-				vim.lsp.buf_attach_client(args.buf, adapter_state.lsp_client.id)
-				vim.bo[args.buf].syntax = 'matlab'
-				vim.diagnostic.enable(false, {bufnr = args.buf}) -- disable diagnostics
-
-				-- keymaps for repl
-				if config.repl.keymaps.previous_command_history then
-					vim.keymap.set('i', config.repl.keymaps.previous_command_history, '<Up>', { buffer = args.buf, remap = true})
-				end
-				if config.repl.keymaps.next_command_history then
-					vim.keymap.set('i', config.repl.keymaps.next_command_history, '<Down>', { buffer = args.buf, remap = true})
-				end
-			end
-		})
-
 	elseif lsp_status == "disconnected" then
 		if not fidget_ok then
 			vim.notify("[matlab-dap] " .. lsp_name .. " is disconnected!", vim.log.levels.ERROR)
