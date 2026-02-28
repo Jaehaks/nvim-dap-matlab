@@ -294,6 +294,15 @@ local function debug_response_handler(err, result, ctx)
 					end
 				end
 				utils.error_fidget() -- exit/terminate don't occur when error exists.
+
+				-- show error in repl If debug session is terminated right after error
+				-- [Situation] : error occurs after step over() during debug session
+				vim.defer_fn(function ()
+					local session = require('dap').session()
+					if not session then
+						require('dap.repl').append(contents)
+					end
+				end, 100)
 			end
 
 			-- make original response to empty to comply with nvim-dap rules.
