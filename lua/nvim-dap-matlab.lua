@@ -82,7 +82,7 @@ local function set_dap(dap, opts)
 
 	-- set progress
 	dap.listeners.after['continue']['progress'] = function () utils.start_fidget('continue...') end
-	dap.listeners.after['event_stopped']['progress'] = function () utils.finish_fidget() end
+	dap.listeners.after['event_stopped']['progress'] = function () utils.stop_fidget() end
 end
 
 --- setup function

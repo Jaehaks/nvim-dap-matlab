@@ -91,19 +91,36 @@ end
 -- other progress bar
 --------------------------------------------------------------------------------
 
+local fidget_stopped = false
+
 --- start fidget progress
 ---@param msg string message to show while fidget spinning
 M.start_fidget = function(msg)
-    if fidget_dap_progress then return end
-
+	fidget_stopped = false
 	local adapter_state = require('nvim-dap-matlab.adapter').get_state()
     if fidget_ok then
+		if fidget_dap_progress then return end
         fidget_dap_progress = fidget_progress.handle.create({
             title = "[matlab-dap]",
             message = msg,
             lsp_client = { name = adapter_state.lsp_client.name},
         })
+	else
+		vim.notify('[matlab-dap] ' .. msg)
     end
+end
+
+--- stop fidget progress
+M.stop_fidget = function()
+	if fidget_stopped then return end
+    if fidget_dap_progress then
+        fidget_dap_progress.message = '🛑 Stopped'
+        fidget_dap_progress:finish()
+        fidget_dap_progress = nil
+	else
+		vim.notify('[matlab-dap] stopped!')
+    end
+	fidget_stopped = true
 end
 
 --- stop fidget progress
@@ -120,6 +137,8 @@ M.error_fidget = function()
         fidget_dap_progress.message = '❌ Error'
         fidget_dap_progress:finish()
         fidget_dap_progress = nil
+	else
+		vim.notify('[matlab-dap] Script Error!, see REPL', vim.log.levels.WARN)
     end
 end
 
