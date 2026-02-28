@@ -82,11 +82,11 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 				vim.diagnostic.enable(false, {bufnr = args.buf}) -- disable diagnostics
 
 				-- keymaps for repl
-				if config.repl.keymaps.previous_command_in_repl then
-					vim.keymap.set('i', config.repl.keymaps.previous_command_in_repl, '<Up>', { buffer = args.buf, remap = true})
+				if config.repl.keymaps.previous_command_history then
+					vim.keymap.set('i', config.repl.keymaps.previous_command_history, '<Up>', { buffer = args.buf, remap = true})
 				end
-				if config.repl.keymaps.next_command_in_repl then
-					vim.keymap.set('i', config.repl.keymaps.next_command_in_repl, '<Down>', { buffer = args.buf, remap = true})
+				if config.repl.keymaps.next_command_history then
+					vim.keymap.set('i', config.repl.keymaps.next_command_history, '<Down>', { buffer = args.buf, remap = true})
 				end
 			end
 		})

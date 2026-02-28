@@ -19,8 +19,8 @@ local M = {}
 ---@field keymaps dap_matlab.config.repl.keymaps
 
 ---@class dap_matlab.config.repl.keymaps
----@field previous_command_in_repl string keymap to insert previous command history
----@field next_command_in_repl string keymap to insert next command history
+---@field previous_command_history string keymap to insert previous command history
+---@field next_command_history string keymap to insert next command history
 
 
 -- default configuration
@@ -43,8 +43,8 @@ local default_config = {
 	repl = {
 		filetype = {'dap-repl', 'dap-view'},
 		keymaps = {
-			previous_command_in_repl = '<C-k>',
-			next_command_in_repl = '<C-j>',
+			previous_command_history = '<C-k>',
+			next_command_history = '<C-j>',
 		},
 	}
 }

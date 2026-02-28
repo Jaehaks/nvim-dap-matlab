@@ -130,8 +130,8 @@ require("nvim-dap-matlab").setup({
   repl = {
     filetype = {'dap-repl', 'dap-view'},  -- set filetypes to apply lsp autocompletion and syntax
     keymaps = {
-      previous_command_in_repl = '<C-k>', -- insert previous command history to repl
-      next_command_in_repl = '<C-j>',     -- insert next command history to repl
+      previous_command_histroy = '<C-k>', -- insert previous command history to repl
+      next_command_history = '<C-j>',     -- insert next command history to repl
     },
   }
 })
