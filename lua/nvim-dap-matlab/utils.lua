@@ -73,7 +73,9 @@ M.lsp_connection_check_handler = function (err, result, ctx)
 		adapter.set_state('lsp_ready', true)
 
 		-- autocmd for repl
+		vim.api.nvim_create_augroup('matlab-dap-repl', {clear = true})
 		vim.api.nvim_create_autocmd('FileType', {
+			group = 'matlab-dap-repl',
 			pattern = config.repl.filetype,
 			callback = function (args)
 				-- attach matlab lsp to repl to use completion
