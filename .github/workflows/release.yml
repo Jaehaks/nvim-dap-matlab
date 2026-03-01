@@ -1,5 +1,8 @@
 # Don't use Tab. use only space
 # You need to use same spaces for all contents
+# permission for Personal token
+#   repo/public_repo : read and write code / branch / PR
+#   workflow : github actions workflow update to interact between github and release bot
 
 # Name of workflow in GitHub Actions tab
 name: Neovim Plugin Release
@@ -37,4 +40,4 @@ on:
           # draft: false       # If it is note stable version
           # prerelease: false  # If it is note stable version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # use secret token to authenticate
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # use secret token to authenticate
