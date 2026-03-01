@@ -44,7 +44,7 @@ standard DAP protocol and the MATLAB LSP's custom notification-based debug inter
 | **Neovim**                                                                    | required | 0.10+ recommended (uses `vim.uv`)                                  |
 | **MATLAB**                                                                    | required | R2021b+ (Tested at R2024b)                                         |
 | [MATLAB Language Server](https://github.com/mathworks/MATLAB-language-server) | required | Running in `--stdio` mode                                          |
-| [Jaehaks/nvim-dap](https://github.com/Jaehaks/nvim-dap)                       | required | forked to fix empty breakpoints until it is fixed in original repo |
+| [Jaehaks/nvim-dap](https://github.com/Jaehaks/nvim-dap)                       | required | forked to fix empty breakpoints Problem [mfussenegger/nvim-dap/#1592](https://github.com/mfussenegger/nvim-dap/pull/1592) until it s fixed in original repo |
 | [fidget.nvim](https://github.com/j-hui/fidget.nvim)                           | optional | Shows beautiful progress                                           |
 
 ---
