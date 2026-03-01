@@ -31,13 +31,13 @@ jobs:
 
         # 2) get source code zip
       - name: Compress Clean zip archive # name
-        run: git archive --format=zip HEAD -o sources.zip # git archive will exclude .git/.github
+        run: git archive --format=zip HEAD -o sources-${{ github.ref_name }}.zip # git archive will exclude .git/.github
 
         # 3) Create github release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2 # use external action to make release
         with: # file list to include in release
-          files: sources.zip
+          files: sources-${{ github.ref_name }}.zip
           generate_release_notes: true # generate commit log diff with previous commit to release note
           # body: "it is test" # uncomment if you want to insert some statements in release note
           # draft: false       # If it is note stable version
