@@ -1,8 +1,11 @@
 # Don't use Tab. use only space
 # You need to use same spaces for all contents
-# permission for Personal token
+# permission for Personal token, you need to check this when create access token
 #   repo/public_repo : read and write code / branch / PR
 #   workflow : github actions workflow update to interact between github and release bot
+#   admin:org - read:org : for gh
+#   admin:public key : for gh using ssh login
+# Plus, you need to add the token in specific repo settings (settings - secrets and variables - create secrets)
 
 # Name of workflow in GitHub Actions tab
 name: Neovim Plugin Release
@@ -13,16 +16,16 @@ on:
     tags:
       - 'v*' # If the tag name is started with 'v'
 
-    # Job definition, What to do
-    jobs:
-      compress-and-release: # Name of job
+      # Job definition, What to do
+jobs:
+  compress-and-release: # Name of job
     runs-on: ubuntu-latest # which server to do this job. ubuntu is more fast and consume small free token
     permissions:
       contents: write # give permission to write to github repo.
 
-    # steps for job
+      # steps for job
     steps:
-        # 1) get source code to server
+      # 1) get source code to server
       - name: Checkout repository # name what you want. It will git clone to server
         uses: actions/checkout@v4 # action name is checkout. @4 is latest
 
