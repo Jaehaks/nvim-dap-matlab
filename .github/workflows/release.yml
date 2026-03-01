@@ -1,0 +1,40 @@
+# Don't use Tab. use only space
+# You need to use same spaces for all contents
+
+# Name of workflow in GitHub Actions tab
+name: Neovim Plugin Release
+
+# trigger condition when this workflow executes
+on:
+  push:
+    tags:
+      - 'v*' # If the tag name is started with 'v'
+
+    # Job definition, What to do
+    jobs:
+      compress-and-release: # Name of job
+    runs-on: ubuntu-latest # which server to do this job. ubuntu is more fast and consume small free token
+    permissions:
+      contents: write # give permission to write to github repo.
+
+    # steps for job
+    steps:
+        # 1) get source code to server
+      - name: Checkout repository # name what you want. It will git clone to server
+        uses: actions/checkout@v4 # action name is checkout. @4 is latest
+
+        # 2) get source code zip
+      - name: Compress Clean zip archive # name
+        run: git archive --format=zip HEAD -o sources.zip # git archive will exclude .git/.github
+
+        # 3) Create github release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2 # use external action to make release
+        with: # file list to include in release
+          files: sources.zip
+          generate_release_notes: true # generate commit log diff with previous commit to release note
+          # body: "it is test" # uncomment if you want to insert some statements in release note
+          # draft: false       # If it is note stable version
+          # prerelease: false  # If it is note stable version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # use secret token to authenticate
