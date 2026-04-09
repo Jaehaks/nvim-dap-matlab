@@ -33,7 +33,7 @@ end
 
 -- lsp connection progress check handler : use FileType if you want to lazy load
 M.lsp_connection_check_handler = function (err, result, ctx)
-	if not result then return end
+	if M.is_nil(result) then return end
 
 	local lsp_status = string.lower(result.connectionStatus)
 	local adapter = require('nvim-dap-matlab.adapter')
@@ -197,5 +197,16 @@ vim.api.nvim_create_autocmd('BufEnter', {
         end
     end
 })
+
+--------------------------------------------------------------------------------
+-- common
+--------------------------------------------------------------------------------
+
+--- check value is nil or vim.NIL (lsp json null) for neovim v0.12
+---@param v any
+---@return boolean
+M.is_nil = function (v)
+	return v == nil or v == vim.NIL
+end
 
 return M

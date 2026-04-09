@@ -1,6 +1,7 @@
 local M = {}
 local config = require("nvim-dap-matlab.config").get_opts()
 local utils = require('nvim-dap-matlab.utils')
+local is_nil = utils.is_nil
 
 local uv = vim.uv or vim.loop
 
@@ -252,7 +253,7 @@ end
 --- initialize, launch, next, stepin, scopes etc ...
 local function debug_response_handler(err, result, ctx)
 	-- check result is valid
-	if not result or not result.debugResponse then
+	if is_nil(result) or is_nil(result.debugResponse) then
 		return
 	end
 	-- check the tag is valid
@@ -265,7 +266,7 @@ local function debug_response_handler(err, result, ctx)
 	if result.debugResponse.command == 'evaluate' and result.debugResponse.success then
 		-- lsp response has not body like 'commandwindow', 'workspace' command in matlab,
 		-- add dummy body to avoid 'resp' error of nvim-dap
-		if not result.debugResponse.body then
+		if is_nil(result.debugResponse.body) then
 			result.debugResponse.body = {
 				result = ' ',
 				variablesReference = 0 -- it is regarded the result as single value
@@ -337,7 +338,7 @@ end
 --- Some event notification from lsp without dap request
 --- stopped at breakpoint, continued
 local function debug_event_handler(err, result, ctx)
-	if not result or not result.debugEvent then
+	if is_nil(result) or is_nil(result.debugEvent) then
 		return
 	end
 
@@ -357,7 +358,7 @@ end
 --- Debugging state change notification handler
 local function debug_statechange_handler(err, result, ctx)
 	vim.schedule(function()
-		if result then
+		if is_nil(result)  then
 			vim.api.nvim_exec_autocmds("User", { pattern = "MatlabDebugStart" })
 		else
 			vim.api.nvim_exec_autocmds("User", { pattern = "MatlabDebugStop" })
