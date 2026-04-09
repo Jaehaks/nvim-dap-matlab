@@ -64,7 +64,7 @@ local function parse_dap_messages()
 		-- check all message contents are received as data length
 		-- if not, get more messages
 		local len_act = #state.msg - idx_e + 1
-		if len_act < len_act then break end
+		if len_act < len_est then break end
 
 		-- if all messages are received,
 		local idx_e_msg = idx_e + len_est
