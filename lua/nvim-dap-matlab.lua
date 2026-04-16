@@ -16,7 +16,6 @@ local function set_dap(dap, opts)
 			return
 		end
 
-		-- vim.print(ip .. ':' .. port)
 		cb({
 			type = "server",
 			host = ip,
@@ -40,6 +39,8 @@ local function set_dap(dap, opts)
 	-- launch matlab file manually using 'evaluate' command in after hook instead of `launch`
 	-- because matlab_ls doesn't  support launch command.
 	dap.listeners.after['launch']['run_matlab'] = function (session, err, _, config, _)
+		if session.config.type ~= 'matlab' then return end
+
 		if err then
 			vim.notify("[matlab-dap] hooker after launch is failed: " .. tostring(err), vim.log.levels.ERROR)
 			return
@@ -69,20 +70,28 @@ local function set_dap(dap, opts)
 		utils.start_fidget('continue...')
 	end
 
-	dap.listeners.after['event_terminated']["terminate_matlab"] = function ()
+	dap.listeners.after['event_terminated']["terminate_matlab"] = function (session)
+		if session.config.type ~= 'matlab' then return end
 		vim.notify("[matlab-dap] Debug session is terminated")
 		utils.finish_fidget()
 		keymaps.del_keymaps(opts)
 	end
-	dap.listeners.after['event_exited']["exit_matlab"] = function ()
+	dap.listeners.after['event_exited']["exit_matlab"] = function (session)
+		if session.config.type ~= 'matlab' then return end
 		vim.notify("[matlab-dap] matlab script is exited")
 		utils.finish_fidget()
 		keymaps.del_keymaps(opts)
 	end
 
 	-- set progress
-	dap.listeners.after['continue']['progress'] = function () utils.start_fidget('continue...') end
-	dap.listeners.after['event_stopped']['progress'] = function () utils.stop_fidget() end
+	dap.listeners.after['continue']['progress_matlab'] = function (session)
+		if session.config.type ~= 'matlab' then return end
+		utils.start_fidget('continue...')
+	end
+	dap.listeners.after['event_stopped']['progress_matlab'] = function (session)
+		if session.config.type ~= 'matlab' then return end
+		utils.stop_fidget()
+	end
 end
 
 --- setup function
