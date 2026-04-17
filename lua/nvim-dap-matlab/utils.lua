@@ -183,7 +183,7 @@ local function set_debug_signs(signs)
     end
 end
 
--- 3. 버퍼 이동 시 FileType을 감지하여 덮어씌우거나 복구합니다.
+-- Detect FileType when moving buffers and overwrite or restore.
 vim.api.nvim_create_augroup('matlab-dap-sign', { clear = true })
 vim.api.nvim_create_autocmd('BufEnter', {
     group = 'matlab-dap-sign',
