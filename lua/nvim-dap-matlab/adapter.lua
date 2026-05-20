@@ -298,7 +298,27 @@ local function debug_response_handler(err, result, ctx)
 						local line = tonumber(linestr)
 						local file = filename .. '.m'
 
-						local filepath = vim.fn.findfile(file, '**') -- find subdirectories from root dir
+						-- detect where is workspace to detect file
+						local search_paths = {}
+						if state.lsp_client and state.lsp_client.workspace_folders then -- if using multiple workspace config
+							for _, workspace in ipairs(state.lsp_client.workspace_folders) do
+								table.insert(search_paths, vim.uri_to_fname(workspace.uri))
+							end
+						elseif state.lsp_client.root_dir then -- if using root_dir
+							search_paths = {state.lsp_client.root_dir}
+						else -- fallback
+							search_paths = {vim.fn.getcwd()}
+						end
+
+						-- find error file from search path
+						local filepath = ''
+						for _, search_path in ipairs(search_paths) do
+							filepath = tostring(vim.fn.findfile(file, search_path .. '/**')) -- find the file in subdir from root dir
+							if filepath ~= '' then
+								break
+							end
+						end
+
 						if filepath == '' then
 							vim.notify('[matlab-dap] Cannot find file ' .. file .. 'in root directory', vim.log.levels.WARN)
 						else
