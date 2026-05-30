@@ -239,7 +239,7 @@ M.stop = function ()
 
 	state.server = nil
 	state.socket = nil
-	state.lsp_client = nil
+	-- state.lsp_client = nil
 	state.msg = ""
 	state.started = false
 end
