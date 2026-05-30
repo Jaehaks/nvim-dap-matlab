@@ -65,7 +65,7 @@ local function set_dap(dap, opts)
 		end
 
 		-- set keymaps for matlab debugging
-		keymaps.set_syntax_to_repl(dap, opts)
+		keymaps.set_syntax_to_repl(opts)
 
 		utils.start_fidget('continue...')
 	end

@@ -29,11 +29,13 @@ end
 ---@field lsp_client vim.lsp.Client? lsp client which is attached to repl
 ---@field augroup string? autocmd group related with repl
 ---@field syntax string original syntax of repl to restore
+---@field started_syntax boolean check the setting syntax in repl is active
 local repl_state = {
 	bufnr = nil,
 	lsp_client = nil,
 	augroup = nil,
 	syntax = '',
+	started_syntax = false,
 }
 
 --- setup keymaps for normal state (regardless of debug state)
@@ -71,29 +73,27 @@ M.set_keymaps_normal = function (opts)
 end
 
 --- setup keymaps for matlab debugging
----@param dap table
 ---@param opts dap_matlab.config
-M.set_syntax_to_repl = function(dap, opts)
+M.set_syntax_to_repl = function(opts)
+	repl_state.started_syntax = true
 
 	--- apply lsp feature / syntax / keymap for repl
 	---@param bufnr number repl buffer number
 	local function _set_syntax_to_repl(bufnr)
-		local session = dap.session()
-		local adapter_state = require('nvim-dap-matlab.adapter').get_state()
-
 		-- only during matlab debug session
-		if session and session.config.type == 'matlab' then
-			repl_state.syntax = vim.bo[bufnr].syntax -- save default syntax
+		if not repl_state.started_syntax then return end
 
-			-- attach matlab lsp to repl to use completion
-			vim.lsp.buf_attach_client(bufnr, adapter_state.lsp_client.id)
-			vim.bo[bufnr].syntax = 'matlab'
-			vim.diagnostic.enable(false, {bufnr = bufnr}) -- disable diagnostics
+		local adapter_state = require('nvim-dap-matlab.adapter').get_state()
+		repl_state.syntax = vim.bo[bufnr].syntax -- save default syntax
 
-			repl_state.bufnr = bufnr
-			repl_state.lsp_client = adapter_state.lsp_client
-			repl_state.augroup = 'matlab-dap-repl'
-		end
+		-- attach matlab lsp to repl to use completion
+		vim.lsp.buf_attach_client(bufnr, adapter_state.lsp_client.id)
+		vim.bo[bufnr].syntax = 'matlab'
+		vim.diagnostic.enable(false, {bufnr = bufnr}) -- disable diagnostics
+
+		repl_state.bufnr = bufnr
+		repl_state.lsp_client = adapter_state.lsp_client
+		repl_state.augroup = 'matlab-dap-repl'
 	end
 
 	-- autocmd for repl
@@ -118,6 +118,7 @@ end
 
 --- delete keymaps for matlab debugging
 M.del_syntax_to_repl = function()
+	repl_state.started_syntax = false
 
 	-- restore properties of repl
 	if repl_state.bufnr then
