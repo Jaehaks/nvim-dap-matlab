@@ -73,7 +73,7 @@ end
 --- setup keymaps for matlab debugging
 ---@param dap table
 ---@param opts dap_matlab.config
-M.set_keymaps_debug = function(dap, opts)
+M.set_syntax_to_repl = function(dap, opts)
 
 	--- apply lsp feature / syntax / keymap for repl
 	---@param bufnr number repl buffer number
@@ -93,16 +93,6 @@ M.set_keymaps_debug = function(dap, opts)
 			repl_state.bufnr = bufnr
 			repl_state.lsp_client = adapter_state.lsp_client
 			repl_state.augroup = 'matlab-dap-repl'
-
-			-- keymaps for repl
-			if opts.repl.keymaps.previous_command_history then
-				vim.keymap.set('i', opts.repl.keymaps.previous_command_history, '<Up>',
-				{ desc = '[matlab-dap] previous commnad history in repl', buffer = bufnr, remap = true})
-			end
-			if opts.repl.keymaps.next_command_history then
-				vim.keymap.set('i', opts.repl.keymaps.next_command_history, '<Down>',
-				{ desc = '[matlab-dap] next commnad history in repl', buffer = bufnr, remap = true})
-			end
 		end
 	end
 
@@ -127,8 +117,7 @@ M.set_keymaps_debug = function(dap, opts)
 end
 
 --- delete keymaps for matlab debugging
----@param opts dap_matlab.config
-M.del_keymaps = function(opts)
+M.del_syntax_to_repl = function()
 
 	-- restore properties of repl
 	if repl_state.bufnr then
@@ -142,16 +131,7 @@ M.del_keymaps = function(opts)
 		-- 2) restore diagnostic
 		vim.diagnostic.enable(true, {bufnr = repl_state.bufnr})
 
-		-- 3) restore keymaps
-		local rm = opts.repl.keymaps
-		if rm.previous_command_history then
-			pcall(vim.keymap.del, 'n', rm.previous_command_history, {buffer = repl_state.bufnr})
-		end
-		if rm.next_command_history then
-			pcall(vim.keymap.del, 'n', rm.next_command_history, {buffer = repl_state.bufnr})
-		end
-
-		-- 4) restore autocmds
+		-- 3) restore autocmds
 		pcall(vim.api.nvim_clear_autocmds, {group = repl_state.augroup})
 		repl_state.bufnr = nil
 		repl_state.augroup = nil

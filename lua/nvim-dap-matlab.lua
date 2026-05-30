@@ -65,7 +65,7 @@ local function set_dap(dap, opts)
 		end
 
 		-- set keymaps for matlab debugging
-		keymaps.set_keymaps_debug(dap, opts)
+		keymaps.set_syntax_to_repl(dap, opts)
 
 		utils.start_fidget('continue...')
 	end
@@ -74,13 +74,13 @@ local function set_dap(dap, opts)
 		if session.config.type ~= 'matlab' then return end
 		vim.notify("[matlab-dap] Debug session is terminated")
 		utils.finish_fidget()
-		keymaps.del_keymaps(opts)
+		keymaps.del_syntax_to_repl()
 	end
 	dap.listeners.after['event_exited']["exit_matlab"] = function (session)
 		if session.config.type ~= 'matlab' then return end
 		vim.notify("[matlab-dap] matlab script is exited")
 		utils.finish_fidget()
-		keymaps.del_keymaps(opts)
+		keymaps.del_syntax_to_repl()
 	end
 
 	-- set progress
