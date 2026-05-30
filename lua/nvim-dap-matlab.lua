@@ -65,7 +65,7 @@ local function set_dap(dap, opts)
 		end
 
 		-- set keymaps for matlab debugging
-		keymaps.set_keymaps(dap, opts)
+		keymaps.set_keymaps_debug(dap, opts)
 
 		utils.start_fidget('continue...')
 	end
@@ -110,6 +110,9 @@ M.setup = function(opts)
 	else
 		vim.notify("[matlab-dap] nvim-dap.nvim doesn't be installed.", vim.log.levels.WARN)
 	end
+
+	-- set keymap in normal state for matlab file only
+	require('nvim-dap-matlab.keymaps').set_keymaps_normal(cf.get_opts())
 
 	-- check lsp connection progress using handler : use FileType if you want to lazy load
 	vim.lsp.handlers["matlab/connection/update/server"] = utils.lsp_connection_check_handler

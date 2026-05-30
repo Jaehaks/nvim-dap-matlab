@@ -103,6 +103,26 @@ local function send_to_lsp(dap_message)
 	state.lsp_client:notify("DebugAdaptorRequest", packagedRequest)
 end
 
+local request_id_direct = os.time()
+--- send matlab command to lsp directly
+---@param matlab_cmd string
+M.send_to_lsp_direct = function(matlab_cmd)
+	local client = state.lsp_client
+	if not client then
+		vim.notify("[nvim-dap-matlab] Error: matlab lsp is not attached.", vim.log.levels.ERROR)
+		return
+	end
+
+	-- unipolar communication to lsp
+	request_id_direct = request_id_direct + 1 -- prevent to crashing packet
+	client.rpc.notify('evalRequest', {
+		requestId = request_id_direct,
+		command = matlab_cmd,
+		isUserEval = true,
+		capabilitiesToRemove = {}
+	})
+end
+
 --------------------------------------------------------------------------------
 -- tcp server handlers from dap to lsp
 --------------------------------------------------------------------------------
