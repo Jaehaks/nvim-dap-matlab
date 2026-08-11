@@ -113,6 +113,12 @@ M.send_to_lsp_direct = function(matlab_cmd)
 		return
 	end
 
+	-- check matlab lsp loading is completed to avoid lsp crash
+	if not state.lsp_ready then
+		vim.notify('[matlab-dap] matlab lsp loading is not completed. Please wait and retry', vim.log.levels.ERROR)
+		return
+	end
+
 	-- unipolar communication to lsp
 	request_id_direct = request_id_direct + 1 -- prevent to crashing packet
 	client.rpc.notify('evalRequest', {
